@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Verified Facts</title>
+<style>
+body{font-family:Arial;margin:20px;}
+table{border-collapse:collapse;width:100%;}
+th,td{padding:8px;border-bottom:1px solid #ddd;}
+.meta{font-size:0.9em;color:#336;}
+.danger{background:#c33;}
+</style>
+</head>
+<body>
+<h1>Verified Facts (ranked by final_score)</h1>
+<p><a href="/">Analyze new fact</a></p>
+<table>
+<tr>
+  <th>ID</th>
+  <th>Type</th>
+  <th>Hypothesis / Content</th>
+  <th>Final Score</th>
+  <th>Proven</th>
+  <th>Actions</th>
+</tr>
+{% for fact in facts %}
+<tr>
+<td>{{ fact.id }}</td>
+<td>{{ fact.input_type }}</td>
+<td>{{ fact.hypothesis or fact.content }}</td>
+<td>{{ fact.final_score }}</td>
+<td>{{ 'Yes' if fact.proven else 'No' }}</td>
+<td>
+  <form method="post" action="{{ url_for('toggle_proven', fact_id=fact.id) }}" style="display:inline">
+    {% if fact.proven %}
+      <button type="submit">Unmark proven</button>
+    {% else %}
+      <button type="submit">Mark proven</button>
+    {% endif %}
+  </form>
+  <form method="post" action="{{ url_for('delete_fact', fact_id=fact.id) }}" style="display:inline;margin-left:6px" onsubmit="return confirm('Delete fact?');">
+    <button type="submit" class="danger">Delete</button>
+  </form>
+  <details style="margin-top:6px">
+    <summary>Show details</summary>
+    <div class="meta">
+      Source: {{ fact.source_identity }} | Expertise: {{ fact.expertise }} | Bias: {{ fact.bias }}<br>
+      Consistency: {{ fact.consistency }} | Past reliability: {{ fact.past_reliability }} | Metadata score: {{ fact.metadata_score }}<br>
+      <pre>{{ fact.metadata }}</pre>
+    </div>
+  </details>
+</td>
+</tr>
+{% endfor %}
+</table>
+</body>
+</html>

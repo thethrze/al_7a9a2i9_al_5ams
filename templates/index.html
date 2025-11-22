@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Fact Credibility Analyzer</title>
+</head>
+<body>
+<h1>Analyze a Fact or Media</h1>
+<form method="post" enctype="multipart/form-data">
+  <label>Enter text, or upload a file (image/audio):</label><br>
+  <textarea name="text_input" rows="4" cols="70"></textarea>
+  <br><br>
+  <input type="file" name="file_input" accept=".jpg,.jpeg,.png,.mp3,.wav,.ogg">
+  <br><br>
+  <button type="submit">Analyze</button>
+</form>
+
+<div class="result">
+{% if results %}
+  {% if results.error %}
+    <strong>Error:</strong> {{ results.error }}
+  {% else %}
+    <h2>Analysis ({{ results.input_type }})</h2>
+    <strong>Summary:</strong> {{ results.summary }}<br>
+    <h3>Credibility details</h3>
+    <table>
+      <tr><th>Criterion</th><th>Value (0..1)</th></tr>
+      {% for k,v in results.details.items() %}
+        <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+      {% endfor %}
+    </table>
+    {% if results.metadata %}
+      <h4>Extracted metadata</h4>
+      <table>
+        {% for k,v in results.metadata.items() %}
+          <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+        {% endfor %}
+      </table>
+    {% endif %}
+    <form method="post" action="/save_fact">
+      <input type="hidden" name="input_type_db" value="{{ results.input_type_db }}">
+      <input type="hidden" name="content_db" value="{{ results.content_db }}">
+      <input type="hidden" name="hypothesis_db" value="{{ results.hypothesis_db }}">
+      <input type="hidden" name="credibility_db" value="{{ results.credibility_db }}">
+      <input type="hidden" name="metadata_db" value="{{ results.metadata_db }}">
+      <label>Mark as proven?</label>
+      <select name="proven">
+        <option value="false">No</option>
+        <option value="true">Yes (proven true)</option>
+      </select>
+      <label style="margin-left:12px">If proven, set result:</label>
+      <select name="result">
+        <option value="correct">Correct</option>
+        <option value="wrong">Wrong</option>
+      </select>
+      <button type="submit">Save fact</button>
+    </form>
+  {% endif %}
+{% endif %}
+</div>
+<p><a href="/facts">View verified facts (ranked)</a></p>
+</body>
+</html>
