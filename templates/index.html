@@ -1,63 +1,163 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Fact Credibility Analyzer</title>
+    <meta charset="UTF-8">
+    <title>Fact Credibility Analyzer</title>
+    <style>
+        body {
+            font-family: 'Montserrat', Arial, sans-serif;
+            background-color: #f5f6fa;
+            background-image: url("{{ url_for('static', filename='background.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow-y: hidden;
+        }
+        .logo-img {
+            display: block;
+            margin: 46px auto 28px auto;
+            height: 160px;
+            width: auto;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(15,7,2,0.14);
+        }
+        .container {
+            background: rgba(255, 222, 173, 0.95);
+            width: 600px;
+            margin: 0 auto;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(62, 46, 26, 0.12);
+        }
+        h1 {
+            text-align: center;
+            color: #865d28;
+            margin-bottom: 20px;
+            font-family: 'Montserrat', Arial, sans-serif;
+            letter-spacing: 1px;
+        }
+        textarea, input[type="file"] {
+            width: 100%;
+            margin-top: 10px;
+        }
+        textarea {
+            height: 120px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #865d28;
+            background: #f8f6f0;
+            font-family: inherit;
+        }
+        button {
+            margin-top: 15px;
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(90deg, #423018 0%, #865d28 100%);
+            border: none;
+            color: #fff7e6;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+            box-shadow: 0 4px 12px #19161626;
+        }
+        button:hover {
+            background: linear-gradient(90deg, #865d28 0%, #423018 100%);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: #fff9f1;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 8px;
+            border-bottom: 1px solid #bfa76f;
+            color: #2a1e11;
+        }
+        th {
+            background-color: #f4e1bb;
+            color: #865d28;
+        }
+        a {
+            text-decoration: none;
+            color: #865d28;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .section-title {
+            color: #865d28;
+            margin-top: 20px;
+            margin-bottom: 8px;
+            font-size: 18px;
+            border-left: 4px solid #423018;
+            padding-left: 8px;
+        }
+    </style>
 </head>
 <body>
-<h1>Analyze a Fact or Media</h1>
-<form method="post" enctype="multipart/form-data">
-  <label>Enter text, or upload a file (image/audio):</label><br>
-  <textarea name="text_input" rows="4" cols="70"></textarea>
-  <br><br>
-  <input type="file" name="file_input" accept=".jpg,.jpeg,.png,.mp3,.wav,.ogg">
-  <br><br>
-  <button type="submit">Analyze</button>
-</form>
+    <!-- Logo image at the top, no text -->
+    <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Logo" class="logo-img">
 
-<div class="result">
-{% if results %}
-  {% if results.error %}
-    <strong>Error:</strong> {{ results.error }}
-  {% else %}
-    <h2>Analysis ({{ results.input_type }})</h2>
-    <strong>Summary:</strong> {{ results.summary }}<br>
-    <h3>Credibility details</h3>
-    <table>
-      <tr><th>Criterion</th><th>Value (0..1)</th></tr>
-      {% for k,v in results.details.items() %}
-        <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
-      {% endfor %}
-    </table>
-    {% if results.metadata %}
-      <h4>Extracted metadata</h4>
-      <table>
-        {% for k,v in results.metadata.items() %}
-          <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
-        {% endfor %}
-      </table>
-    {% endif %}
-    <form method="post" action="/save_fact">
-      <input type="hidden" name="input_type_db" value="{{ results.input_type_db }}">
-      <input type="hidden" name="content_db" value="{{ results.content_db }}">
-      <input type="hidden" name="hypothesis_db" value="{{ results.hypothesis_db }}">
-      <input type="hidden" name="credibility_db" value="{{ results.credibility_db }}">
-      <input type="hidden" name="metadata_db" value="{{ results.metadata_db }}">
-      <label>Mark as proven?</label>
-      <select name="proven">
-        <option value="false">No</option>
-        <option value="true">Yes (proven true)</option>
-      </select>
-      <label style="margin-left:12px">If proven, set result:</label>
-      <select name="result">
-        <option value="correct">Correct</option>
-        <option value="wrong">Wrong</option>
-      </select>
-      <button type="submit">Save fact</button>
-    </form>
-  {% endif %}
-{% endif %}
-</div>
-<p><a href="/facts">View verified facts (ranked)</a></p>
+    <div class="container">
+        <h1>Analyze a Fact or Media</h1>
+        <form method="post" enctype="multipart/form-data">
+            <label>Enter text or upload a file:</label>
+            <textarea name="text_input"></textarea>
+            <input type="file" name="file_input" accept=".jpg,.jpeg,.png,.mp3,.wav,.ogg">
+            <button type="submit">Analyze</button>
+        </form>
+        {% if results %}
+            {% if results.error %}
+                <p><strong>Error:</strong> {{ results.error }}</p>
+            {% else %}
+                <h2 class="section-title">Analysis ({{ results.input_type }})</h2>
+                <p><strong>Summary:</strong> {{ results.summary }}</p>
+                <h3 class="section-title">Credibility Details</h3>
+                <table>
+                    <tr><th>Criterion</th><th>Value</th></tr>
+                    {% for k,v in results.details.items() %}
+                        <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+                    {% endfor %}
+                </table>
+                {% if results.metadata %}
+                    <h3 class="section-title">Extracted Metadata</h3>
+                    <table>
+                        {% for k,v in results.metadata.items() %}
+                            <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+                        {% endfor %}
+                    </table>
+                {% endif %}
+                <form method="post" action="/save_fact">
+                    <input type="hidden" name="input_type_db" value="{{ results.input_type_db }}">
+                    <input type="hidden" name="content_db" value="{{ results.content_db }}">
+                    <input type="hidden" name="hypothesis_db" value="{{ results.hypothesis_db }}">
+                    <input type="hidden" name="credibility_db" value="{{ results.credibility_db }}">
+                    <input type="hidden" name="metadata_db" value="{{ results.metadata_db }}">
+                    <label>Mark as proven?</label>
+                    <select name="proven">
+                        <option value="false">No</option>
+                        <option value="true">Yes (proven)</option>
+                    </select>
+                    <label>Result:</label>
+                    <select name="result">
+                        <option value="correct">Correct</option>
+                        <option value="wrong">Wrong</option>
+                    </select>
+                    <button type="submit">Save Fact</button>
+                </form>
+            {% endif %}
+        {% endif %}
+        <p style="text-align:center;margin-top:20px;">
+            <a href="/facts">View verified facts (ranked)</a>
+        </p>
+    </div>
 </body>
 </html>

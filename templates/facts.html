@@ -4,24 +4,78 @@
 <meta charset="utf-8">
 <title>Verified Facts</title>
 <style>
-body{font-family:Arial;margin:20px;}
-table{border-collapse:collapse;width:100%;}
-th,td{padding:8px;border-bottom:1px solid #ddd;}
-.meta{font-size:0.9em;color:#336;}
-.danger{background:#c33;}
+body {
+    font-family: Arial, 'Montserrat', sans-serif;
+    background: #f5f6fa;
+    margin: 0;
+    padding: 20px;
+}
+h1 {
+    color: #865d28;
+    font-family: 'Montserrat', Arial, sans-serif;
+}
+table {
+    width: 100%;
+    background: #fff9f1;
+    border-collapse: collapse;
+    box-shadow: 0 4px 20px rgba(62, 46, 26, 0.12);
+    border-radius: 12px;
+    overflow: hidden;
+}
+th {
+    background: #f4e1bb;
+    color: #865d28;
+    padding: 10px;
+}
+td {
+    padding: 10px;
+    border-bottom: 1px solid #bfa76f;
+    color: #2a1e11;
+}
+button {
+    padding: 6px 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    background: #865d28;
+    color: #fff7e6;
+    font-weight: bold;
+    transition: .2s;
+}
+button:hover {
+    background: #423018;
+    opacity: 0.95;
+}
+.danger {
+    background: #e74c3c;
+    color: white;
+}
+.meta {
+    background: #f8f6f0;
+    padding: 10px;
+    border-radius: 6px;
+}
+a {
+    color: #865d28;
+    text-decoration: none;
+    font-weight: bold;
+}
+a:hover {
+    text-decoration: underline dotted;
+}
 </style>
 </head>
 <body>
-<h1>Verified Facts (ranked by final_score)</h1>
-<p><a href="/">Analyze new fact</a></p>
+<h1>Verified Facts</h1>
+<p><a href="/">← Analyze new fact</a></p>
 <table>
 <tr>
-  <th>ID</th>
-  <th>Type</th>
-  <th>Hypothesis / Content</th>
-  <th>Final Score</th>
-  <th>Proven</th>
-  <th>Actions</th>
+    <th>ID</th>
+    <th>Type</th>
+    <th>Hypothesis / Content</th>
+    <th>Final Score</th>
+    <th>Proven</th>
+    <th>Actions</th>
 </tr>
 {% for fact in facts %}
 <tr>
@@ -31,27 +85,33 @@ th,td{padding:8px;border-bottom:1px solid #ddd;}
 <td>{{ fact.final_score }}</td>
 <td>{{ 'Yes' if fact.proven else 'No' }}</td>
 <td>
-  <form method="post" action="{{ url_for('toggle_proven', fact_id=fact.id) }}" style="display:inline">
-    {% if fact.proven %}
-      <button type="submit">Unmark proven</button>
-    {% else %}
-      <button type="submit">Mark proven</button>
-    {% endif %}
-  </form>
-  <form method="post" action="{{ url_for('delete_fact', fact_id=fact.id) }}" style="display:inline;margin-left:6px" onsubmit="return confirm('Delete fact?');">
-    <button type="submit" class="danger">Delete</button>
-  </form>
-  <details style="margin-top:6px">
-    <summary>Show details</summary>
-    <div class="meta">
-      Source: {{ fact.source_identity }} | Expertise: {{ fact.expertise }} | Bias: {{ fact.bias }}<br>
-      Consistency: {{ fact.consistency }} | Past reliability: {{ fact.past_reliability }} | Metadata score: {{ fact.metadata_score }}<br>
-      <pre>{{ fact.metadata }}</pre>
-    </div>
-  </details>
+    <form method="post" action="{{ url_for('toggle_proven', fact_id=fact.id) }}" style="display:inline">
+        {% if fact.proven %}
+            <button type="submit">Unmark</button>
+        {% else %}
+            <button type="submit">Mark</button>
+        {% endif %}
+    </form>
+    <form method="post" action="{{ url_for('delete_fact', fact_id=fact.id) }}" style="display:inline" onsubmit="return confirm('Delete this fact?');">
+        <button type="submit" class="danger">Delete</button>
+    </form>
+    <details style="margin-top:6px">
+        <summary>Details</summary>
+        <div class="meta">
+            Source: {{ fact.source_identity }}
+            | Expertise: {{ fact.expertise }}
+            | Bias: {{ fact.bias }}
+            <br>
+            Consistency: {{ fact.consistency }}
+            | Past reliability: {{ fact.past_reliability }}
+            | Metadata: {{ fact.metadata_score }}
+            <pre>{{ fact.fact_metadata }}</pre>
+        </div>
+    </details>
 </td>
 </tr>
 {% endfor %}
 </table>
 </body>
 </html>
+

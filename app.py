@@ -41,7 +41,7 @@ class Fact(db.Model):
     consistency = db.Column(db.Float, default=0.0)
     past_reliability = db.Column(db.Float, default=0.0)
     metadata_score = db.Column(db.Float, default=0.0)
-    metadata = db.Column(db.Text)
+    fact_metadata = db.Column(db.Text)
 
 # --- AI/NLP Pipelines ---
 summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
@@ -239,7 +239,7 @@ def save_fact():
         final_score=credibility,
         proven=proven,
         result=result,
-        metadata=metadata,
+        fact_metadata=metadata,
     )
     db.session.add(new_fact)
     db.session.commit()
